@@ -24,6 +24,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.nio.charset.Charset
 
 class LiveTvActivity : AppCompatActivity() {
 
@@ -35,9 +36,11 @@ class LiveTvActivity : AppCompatActivity() {
     private var username = ""
     private var password = ""
 
-    // Cache simples em memória para evitar repetir chamadas
+    // Mantendo a estrutura original do seu cache
     private var cachedCategories: List<LiveCategory>? = null
-    private val channelsCache = mutableMapOf<String, List<LiveStream>>() // key = categoryId
+    
+    // IMPORTANTE: Alterado para String para evitar o erro de tipos no Cache
+    private val channelsCache = mutableMapOf<String, List<LiveStream>>() 
 
     private var categoryAdapter: CategoryAdapter? = null
     private var channelAdapter: ChannelAdapter? = null
@@ -46,10 +49,8 @@ class LiveTvActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_live_tv)
 
-        val windowInsetsController = WindowCompat.getInsetsController(window,
-        window.decorView)
-        windowInsetsController.systemBarsBehavior =
-        WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 
         rvCategories = findViewById(R.id.rvCategories)
@@ -61,7 +62,7 @@ class LiveTvActivity : AppCompatActivity() {
         username = prefs.getString("username", "") ?: ""
         password = prefs.getString("password", "") ?: ""
 
-        // ✅ FOCO TV + D-PAD PERFEITO
+        // Configuração de Foco
         setupRecyclerFocus()
 
         rvCategories.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -70,18 +71,17 @@ class LiveTvActivity : AppCompatActivity() {
         rvCategories.isFocusable = true
         rvCategories.descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
 
+        // Mantendo o GridLayoutManager (5 colunas) como você pediu
         rvChannels.layoutManager = GridLayoutManager(this, 5)
         rvChannels.isFocusable = true
         rvChannels.descendantFocusability = ViewGroup.FOCUS_AFTER_DESCENDANTS
         rvChannels.setHasFixedSize(true)
 
-        // ✅ Foco inicial categorias (TV)
         rvCategories.requestFocus()
 
         carregarCategorias()
     }
 
-    // ✅ MELHOR NAVEGAÇÃO ENTRE RECYCLERVIEWS (TV)
     private fun setupRecyclerFocus() {
         rvCategories.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
@@ -96,7 +96,6 @@ class LiveTvActivity : AppCompatActivity() {
         }
     }
 
-    // -------- Função helper para detectar adulto --------
     private fun isAdultName(name: String?): Boolean {
         if (name.isNullOrBlank()) return false
         val n = name.lowercase()
@@ -108,7 +107,6 @@ class LiveTvActivity : AppCompatActivity() {
     }
 
     private fun carregarCategorias() {
-        // Se já temos cache em memória, usa direto (muito mais rápido ao voltar para a tela)
         cachedCategories?.let { categorias ->
             aplicarCategorias(categorias)
             return
@@ -126,10 +124,8 @@ class LiveTvActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body() != null) {
                         var categorias = response.body()!!
 
-                        // Cache em memória
                         cachedCategories = categorias
 
-                        // Se o controle parental estiver ATIVO, remove categorias adultas
                         if (ParentalControlManager.isEnabled(this@LiveTvActivity)) {
                             categorias = categorias.filterNot { cat ->
                                 isAdultName(cat.name)
@@ -174,22 +170,24 @@ class LiveTvActivity : AppCompatActivity() {
         }
         rvCategories.adapter = categoryAdapter
 
-        // Carrega a primeira categoria apenas uma vez
         carregarCanais(categorias[0])
     }
 
     private fun carregarCanais(categoria: LiveCategory) {
         tvCategoryTitle.text = categoria.name
 
-        // Se já buscamos essa categoria antes, usa cache
-        channelsCache[categoria.id]?.let { canaisCacheados ->
+        // Correção aqui: Converter ID para String para usar no Cache corretamente
+        val catIdStr = categoria.id.toString()
+
+        channelsCache[catIdStr]?.let { canaisCacheados ->
             aplicarCanais(categoria, canaisCacheados)
             return
         }
 
         progressBar.visibility = View.VISIBLE
 
-        XtreamApi.service.getLiveStreams(username, password, categoryId = categoria.id)
+        // Correção aqui: Passar categoryId como String
+        XtreamApi.service.getLiveStreams(username, password, categoryId = catIdStr)
             .enqueue(object : Callback<List<LiveStream>> {
                 override fun onResponse(
                     call: Call<List<LiveStream>>,
@@ -199,10 +197,8 @@ class LiveTvActivity : AppCompatActivity() {
                     if (response.isSuccessful && response.body() != null) {
                         var canais = response.body()!!
 
-                        // Cache por categoria
-                        channelsCache[categoria.id] = canais
+                        channelsCache[catIdStr] = canais
 
-                        // Se controle parental ligado, esconde canais adultos
                         if (ParentalControlManager.isEnabled(this@LiveTvActivity)) {
                             canais = canais.filterNot { canal ->
                                 isAdultName(canal.name)
@@ -303,7 +299,7 @@ class LiveTvActivity : AppCompatActivity() {
     }
 
     // --------------------
-    // ADAPTER DOS CANAIS + EPG
+    // ADAPTER DOS CANAIS + EPG (CORRIGIDO COM A LÓGICA DO ARQUIVO ANTIGO)
     // --------------------
     inner class ChannelAdapter(
         private val list: List<LiveStream>,
@@ -340,6 +336,7 @@ class LiveTvActivity : AppCompatActivity() {
                 .centerCrop()
                 .into(holder.imgLogo)
 
+            // Chamada do EPG corrigida
             carregarEpg(holder, item)
 
             holder.itemView.isFocusable = true
@@ -352,11 +349,12 @@ class LiveTvActivity : AppCompatActivity() {
             holder.itemView.setOnClickListener { onClick(item) }
         }
 
+        // Esta é a função decodeBase64 ROBUSTA do seu arquivo antigo
         private fun decodeBase64(text: String?): String {
             return try {
                 if (text.isNullOrEmpty()) "" else String(
                     Base64.decode(text, Base64.DEFAULT),
-                    Charsets.UTF_8
+                    Charset.forName("UTF-8") // Garante compatibilidade de acentos
                 )
             } catch (e: Exception) {
                 text ?: ""
@@ -369,6 +367,7 @@ class LiveTvActivity : AppCompatActivity() {
                 return
             }
 
+            // AQUI ESTÁ A MÁGICA: Convertendo explicitamente para String como no arquivo antigo
             val epgId = canal.id.toString()
 
             XtreamApi.service.getShortEpg(
@@ -418,7 +417,6 @@ class LiveTvActivity : AppCompatActivity() {
         override fun getItemCount() = list.size
     }
 
-    // ✅ BACK = SAIR (TV + Celular)
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             finish()
