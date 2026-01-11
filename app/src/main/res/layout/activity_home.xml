@@ -32,13 +32,12 @@
                 android:shadowDx="2"
                 android:shadowDy="2"
                 android:shadowRadius="4"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="12dp" />
 
             <EditText
                 android:id="@+id/etSearch"
-                android:layout_width="280dp"
+                android:layout_width="260dp"
                 android:layout_height="36dp"
-                android:layout_marginEnd="12dp"
                 android:background="@drawable/bg_search_rounded"
                 android:paddingStart="36dp"
                 android:paddingEnd="8dp"
@@ -48,8 +47,13 @@
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"
                 android:imeOptions="actionSearch"
-                android:inputType="text"
+                android:inputType="textNoSuggestions"
                 android:maxLines="1" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
             <ImageButton
                 android:id="@+id/btnSettings"
@@ -59,11 +63,6 @@
                 android:src="@drawable/ic_settings"
                 app:tint="#FFFFFF"
                 android:focusable="true" />
-                
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
                 
         </LinearLayout>
 
