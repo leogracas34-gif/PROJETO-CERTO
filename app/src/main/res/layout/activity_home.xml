@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- CABEÇALHO COM BARRA DE BUSCA -->
         <LinearLayout
             android:id="@+id/headerLayout"
             android:layout_width="match_parent"
@@ -35,19 +34,17 @@
                 android:shadowRadius="4"
                 android:layout_marginEnd="8dp" />
 
-            <!-- BARRA DE BUSCA MAIS CURTA -->
             <EditText
                 android:id="@+id/etSearch"
-                android:layout_width="0dp"
+                android:layout_width="280dp"
                 android:layout_height="36dp"
-                android:layout_weight="0.7"
                 android:layout_marginEnd="12dp"
                 android:background="@drawable/bg_search_rounded"
                 android:paddingStart="36dp"
                 android:paddingEnd="8dp"
                 android:drawableStart="@drawable/ic_search"
                 android:drawablePadding="8dp"
-                android:hint="Buscar canais, filmes e séries"
+                android:hint="Buscar..."
                 android:textColor="#FFFFFF"
                 android:textColorHint="#AAAAAA"
                 android:imeOptions="actionSearch"
@@ -62,9 +59,14 @@
                 android:src="@drawable/ic_settings"
                 app:tint="#FFFFFF"
                 android:focusable="true" />
+                
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+                
         </LinearLayout>
 
-        <!-- BANNER TMDB -->
         <androidx.cardview.widget.CardView
             android:id="@+id/cardBanner"
             android:layout_width="match_parent"
@@ -121,7 +123,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- MENU DE BOTÕES -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -129,7 +130,6 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <!-- CARD AO VIVO -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardLiveTv"
                 android:layout_width="0dp"
@@ -168,7 +168,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- CARD FILMES -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardMovies"
                 android:layout_width="0dp"
@@ -207,7 +206,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- CARD SÉRIES -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardSeries"
                 android:layout_width="0dp"
