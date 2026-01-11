@@ -49,6 +49,26 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         carregarBannerAleatorio()
+
+        // --- CORREÇÃO DO TECLADO E BUSCA ---
+        try {
+            // 1. Limpa o texto da busca
+            binding.etSearch.setText("")
+            
+            // 2. Tira o foco da barra de busca
+            binding.etSearch.clearFocus()
+
+            // 3. Força o teclado a fechar
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
+
+            // 4. Joga o foco para o Banner (para não voltar para a busca sozinho)
+            binding.cardBanner.requestFocus()
+            
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        // -----------------------------------
     }
 
     private fun setupClicks() {
