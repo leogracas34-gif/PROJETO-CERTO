@@ -98,6 +98,8 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:background="@drawable/selector_button_premium"
+            android:backgroundTint="@null"
+            app:backgroundTint="@null"
             android:text="ENTRAR"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
