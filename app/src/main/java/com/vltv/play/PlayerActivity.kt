@@ -1,4 +1,4 @@
-package com.vltv.play
+Package com.vltv.play
 
 import android.content.Context
 import android.content.Intent
@@ -322,18 +322,12 @@ class PlayerActivity : AppCompatActivity() {
 
         val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
 
-                // CONFIGURAÇÃO ULTRA TURBO (Abertura quase instantânea)
+        // CONFIGURAÇÃO TURBO (Para abrir filmes rápido)
         val isLive = streamType == "live"
-        
-        // Começa a rodar com apenas MEIO SEGUNDO baixado
-        val minBufferMs = 500 
-        
-        // Se for Live, mantém buffer curto para não dar delay. Se for Filme, deixa carregar mais.
-        val maxBufferMs = if (isLive) 3000 else 10000 
-        
-        // Se a internet oscilar, ele só precisa de 0.5s para voltar a rodar
-        val playBufferMs = 500 
-        val playRebufferMs = 1000
+        val minBufferMs = if (isLive) 2000 else 2000
+        val maxBufferMs = if (isLive) 5000 else 15000
+        val playBufferMs = 1000
+        val playRebufferMs = 2000
 
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -344,7 +338,6 @@ class PlayerActivity : AppCompatActivity() {
             )
             .setPrioritizeTimeOverSizeThresholds(true)
             .build()
-
 
         player = ExoPlayer.Builder(this)
             .setMediaSourceFactory(mediaSourceFactory)
