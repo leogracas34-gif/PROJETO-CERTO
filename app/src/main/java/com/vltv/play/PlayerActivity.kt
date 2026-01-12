@@ -106,7 +106,7 @@ class PlayerActivity : AppCompatActivity() {
         setContentView(R.layout.activity_player)
 
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        windowInsetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_BARS_BY_TOUCH
         windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
 
         window.decorView.systemUiVisibility =
@@ -322,12 +322,18 @@ class PlayerActivity : AppCompatActivity() {
 
         val mediaSourceFactory = DefaultMediaSourceFactory(dataSourceFactory)
 
-        // CONFIGURAÇÃO TURBO (Para abrir filmes rápido)
+                // CONFIGURAÇÃO ULTRA TURBO (Abertura quase instantânea)
         val isLive = streamType == "live"
-        val minBufferMs = if (isLive) 2000 else 2000
-        val maxBufferMs = if (isLive) 5000 else 15000
-        val playBufferMs = 1000
-        val playRebufferMs = 2000
+        
+        // Começa a rodar com apenas MEIO SEGUNDO baixado
+        val minBufferMs = 500 
+        
+        // Se for Live, mantém buffer curto para não dar delay. Se for Filme, deixa carregar mais.
+        val maxBufferMs = if (isLive) 3000 else 10000 
+        
+        // Se a internet oscilar, ele só precisa de 0.5s para voltar a rodar
+        val playBufferMs = 500 
+        val playRebufferMs = 1000
 
         val loadControl = androidx.media3.exoplayer.DefaultLoadControl.Builder()
             .setBufferDurationsMs(
@@ -338,6 +344,7 @@ class PlayerActivity : AppCompatActivity() {
             )
             .setPrioritizeTimeOverSizeThresholds(true)
             .build()
+
 
         player = ExoPlayer.Builder(this)
             .setMediaSourceFactory(mediaSourceFactory)
